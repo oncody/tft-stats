@@ -1,0 +1,23 @@
+{
+  "name": "tft-stats",
+  "version": "1.0.0",
+  "description": "TeamFfight tactics stats",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oncody/tft-stats.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/oncody/tft-stats/issues"
+  },
+  "homepage": "https://github.com/oncody/tft-stats#readme",
+  "dependencies": {
+    "request": "^2.88.0"
+  }
+}
