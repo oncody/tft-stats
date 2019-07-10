@@ -16,11 +16,33 @@ class ChampionScraper {
            let cost = this.parseCost();
            let origins = this.parseOrigins();
            let classes = this.parseClasses();
+           let abilityName = this.parseAbilityName();
+           // let abilityDescription = this.parseAbilityDescription();
+           let health = this.getDataValue('health');
+           let mana = this.getDataValue('mana');
+           // let startingMana = this.getDataValue('starting mana');
+           let damage = this.getDataValue('ad');
+           let attackSpeed = this.getDataValue('as');
+           let range = this.getDataValue('attack range');
+           let armor = this.getDataValue('armor');
+           let mr = this.getDataValue('mr');
+           let playerDamage = this.getDataValue('player damage');
 
            console.log(name);
            console.log(cost);
            console.log(origins);
            console.log(classes);
+           console.log(abilityName);
+           // console.log(abilityDescription);
+           console.log(health);
+           console.log(mana);
+           // console.log(startingMana);
+           console.log(damage);
+           console.log(attackSpeed);
+           console.log(range);
+           console.log(armor);
+           console.log(mr);
+           console.log(playerDamage);
 
            return this;
        })();
@@ -73,6 +95,36 @@ class ChampionScraper {
 
         return classes;
 
+    }
+
+    parseAbilityName() {
+        // const abilityNameRegex = /<[^<>]+data-source\s*=\s*['"]ability name['"][^<>]*>.*?<[^<>]+class\s*=\s*['"]pi-data-value[^'"]*['"][^<>]*>.*?<span[^<>]*>([^<>]*)<\/span>/s;
+        // let matches = abilityNameRegex.exec(this.statsText);
+        // return matches[1];
+        return this.getDataValueNestedInSpan('ability name');
+    }
+
+    parseAbilityDescription() {
+        // const abilityDescrptionRegex = /<[^<>]+data-source\s*=\s*['"]ability description['"][^<>]*>.*?<[^<>]+class\s*=\s*['"]pi-data-value[^'"]*['"][^<>]*>.*?<span[^<>]*>([^<>]*)<\/span>/s;
+        // let matches = abilityDescrptionRegex.exec(this.statsText);
+        // return matches[1];
+        return '';
+    }
+
+    parseHealth() {
+        return
+    }
+
+    getDataValueNestedInSpan(dataSource) {
+        const regex = new RegExp(`<[^<>]+data-source\s*=\s*['"]${dataSource}['"][^<>]*>.*?<[^<>]+class\s*=\s*['"]pi-data-value[^'"]*['"][^<>]*>.*?<span[^<>]*>([^<>]*)<\/span>`, 's');
+        let matches = regex.exec(this.statsText);
+        return matches[1];
+    }
+
+    getDataValue(dataSource) {
+        const regex = new RegExp(`<[^<>]+data-source\\s*=\\s*['"]${dataSource}['"][^<>]*>.*?<[^<>]+class\\s*=\\s*['"]pi-data-value[^'"]*['"][^<>]*>([^<>]*)<\\/`, 's');
+        let matches = regex.exec(this.statsText);
+        return matches[1];
     }
 
 }
