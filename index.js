@@ -1,15 +1,21 @@
 const fetch = require('node-fetch');
+const ChampionScraper = require('./champion-scraper');
 
-
-(async function() {
+(async function () {
     const urlBase = 'https://leagueoflegends.fandom.com';
     const url = urlBase + '/wiki/Teamfight_Tactics:Champions#Stat%20List';
     let championUrls = await getChampionUrls(url);
 
-    console.log(championUrls);
-
     let firstChampionUrl = championUrls.values().next().value;
-    let championInfo = await scrapeChampionDataFromUrl(urlBase + firstChampionUrl);
+    let kennenChampionUrl;
+
+    for(let championUrl of championUrls) {
+        if(championUrl.toLowerCase().includes('gangplank')) {
+            kennenChampionUrl = championUrl;
+        }
+    }
+
+    let championScraper = await new ChampionScraper(urlBase + kennenChampionUrl);
 })();
 
 async function getChampionUrls(url) {
@@ -31,13 +37,4 @@ async function getChampionUrls(url) {
     return championUrls;
 }
 
-async function scrapeChampionDataFromUrl(url) {
-    const statsRegex = /<aside.*<\/aside>/s;
 
-    const response = await fetch(url);
-    const body = await response.text();
-    let statsMatches = statsRegex.exec(body);
-    let statsText = statsMatches[0];
-
-    // console.log(statsText);
-}
