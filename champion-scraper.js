@@ -20,6 +20,7 @@ class ChampionScraper {
            console.log(name);
            console.log(cost);
            console.log(origins);
+           console.log(classes);
 
            return this;
        })();
@@ -38,7 +39,7 @@ class ChampionScraper {
     }
 
     parseOrigins() {
-        const originsRegex = /(<td\s+.*data-source\s*=\s*['"]origin['"].*>.*<.*data-param\s*=\s*['"][^'"]*['"].*>.*)<td\s+.*data-source\s*=\s*['"]class['"].*>/s;
+        const originsRegex = /(<td\s+[^<>]*data-source\s*=\s*['"]origin['"][^<>]*>.*)<td\s+[^<>]*data-source\s*=\s*['"]class['"][^<>]*>/s;
         const originRegex = /data-param=['"]([^'"]*)['"]/g;
 
         let origins = [];
@@ -56,6 +57,21 @@ class ChampionScraper {
     }
 
     parseClasses() {
+        const classesRegex = /(<td\s+[^<>]*data-source\s*=\s*['"]class['"][^<>]*>.*)<\/tr>/s;
+        const classRegex = /data-param=['"]([^'"]*)['"]/g;
+
+        let classes = [];
+        let classTextMatch;
+
+        let classesMatches = classesRegex.exec(this.statsText);
+        let classesText = classesMatches[1];
+
+
+        while (classTextMatch = classRegex.exec(classesText)) {
+            classes.push(classTextMatch[1]);
+        }
+
+        return classes;
 
     }
 
