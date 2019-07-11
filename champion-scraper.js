@@ -28,21 +28,21 @@ class ChampionScraper {
            let mr = this.getDataValue('mr');
            let playerDamage = this.getDataValue('player damage');
 
-           console.log(name);
-           console.log(cost);
-           console.log(origins);
-           console.log(classes);
-           console.log(abilityName);
-           console.log(abilityDescription);
-           console.log(health);
-           console.log(mana);
-           console.log(startingMana);
-           console.log(damage);
-           console.log(attackSpeed);
-           console.log(range);
-           console.log(armor);
-           console.log(mr);
-           console.log(playerDamage);
+           console.log(`name: ${name}`);
+           console.log(`cost: ${cost}`);
+           console.log(`origins: ${origins}`);
+           console.log(`classes: ${classes}`);
+           console.log(`abilityName: ${abilityName}`);
+           // console.log(`abilityDescription: ${abilityDescription}`);
+           console.log(`health: ${health}`);
+           console.log(`mana: ${mana}`);
+           // console.log(`startingMana: ${startingMana}`);
+           console.log(`damage: ${damage}`);
+           console.log(`attackSpeed: ${attackSpeed}`);
+           console.log(`range: ${range}`);
+           console.log(`armor: ${armor}`);
+           console.log(`mr: ${mr}`);
+           console.log(`playerDamage: ${playerDamage}`);
 
            return this;
        })();
