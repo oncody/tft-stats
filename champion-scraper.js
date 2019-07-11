@@ -33,10 +33,10 @@ class ChampionScraper {
            console.log(origins);
            console.log(classes);
            console.log(abilityName);
-           // console.log(abilityDescription);
+           console.log(abilityDescription);
            console.log(health);
            console.log(mana);
-           // console.log(startingMana);
+           console.log(startingMana);
            console.log(damage);
            console.log(attackSpeed);
            console.log(range);
