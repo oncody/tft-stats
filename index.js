@@ -20,6 +20,12 @@ const ChampionScraper = require('./champion-scraper');
        return champion.getCost() === 1;
     });
 
+    let averageHealth = averageStat(oneCostChampions, champion => champion.getFirstLevel().getHealth());
+    let averageEffectiveHealth = averageStat(oneCostChampions, champion => champion.getFirstLevel().getEffectiveHealth());
+    console.log('averageHealth: ' + averageHealth);
+    console.log('averageEffectiveHealth: ' + averageEffectiveHealth);
+
+
     let twoCostChampions = champions.filter(function(champion) {
         return champion.getCost() === 2
     });
@@ -36,6 +42,12 @@ const ChampionScraper = require('./champion-scraper');
         return champion.getCost() === 5;
     });
 })();
+
+function averageStat(arr, fn) {
+    let reducer = (accumulator, champion) => accumulator + fn(champion);
+    let total = arr.reduce(reducer, 0);
+    return total / arr.length;
+}
 
 async function getChampionUrls(url) {
     const championsRegex = /<[^<>]+\s+id\s*=\s*['"]List_of_champions['"]\s*>(.*)<[^<>]+\s+id\s*=\s*['"]Trivia['"]\s*>/s;

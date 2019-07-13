@@ -1,9 +1,15 @@
 class ChampionLevel {
-    constructor(attackSpeed, health, damage, playerDamage) {
+    constructor(attackSpeed, armor, health, damage, playerDamage) {
+        this.attackSpeed = attackSpeed;
+        this.armor = armor;
         this.health = health;
         this.damage = damage;
-        this.dps = attackSpeed * damage;
         this.playerDamage = playerDamage;
+    }
+
+    getEffectiveHealth() {
+        let armorPercent = this.armor / 100;
+        return this.health + (armorPercent * this.health);
     }
 
     getHealth() {
@@ -15,7 +21,7 @@ class ChampionLevel {
     }
 
     getDps() {
-        return this.dps;
+        return this.attackSpeed * this.damage;
     }
 
     getPlayerDamage() {

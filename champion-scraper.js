@@ -43,9 +43,9 @@ class ChampionScraper {
            let secondPlayerDamage = this.parseSecondLevelStat(playerDamage);
            let thirdPlayerDamage = this.parseThirdLevelStat(playerDamage);
 
-           let firstLevel = new ChampionLevel(attackSpeed, firstHealth, firstDamage, firstPlayerDamage);
-           let secondLevel = new ChampionLevel(attackSpeed, secondHealth, secondDamage, secondPlayerDamage);
-           let thirdLevel = new ChampionLevel(attackSpeed, thirdHealth, thirdDamage, thirdPlayerDamage);
+           let firstLevel = new ChampionLevel(attackSpeed, armor, firstHealth, firstDamage, firstPlayerDamage);
+           let secondLevel = new ChampionLevel(attackSpeed, armor, secondHealth, secondDamage, secondPlayerDamage);
+           let thirdLevel = new ChampionLevel(attackSpeed, armor, thirdHealth, thirdDamage, thirdPlayerDamage);
            this.champion = new Champion(name, cost, origins, classes, mana, startingMana, attackSpeed, range, armor, mr, firstLevel, secondLevel, thirdLevel);
 
            return this;
