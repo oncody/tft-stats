@@ -28,22 +28,57 @@ class ChampionScraper {
            let mr = this.getPiDataValueDataSource('mr');
            let playerDamage = this.getPiDataValueDataSource('player damage');
 
+           let firstHealth = this.parseFirstLevelStat(health);
+           let secondHealth = this.parseSecondLevelStat(health);
+           let thirdHealth = this.parseThirdLevelStat(health);
+
+           let firstDamage = this.parseFirstLevelStat(damage);
+           let secondDamage = this.parseSecondLevelStat(damage);
+           let thirdDamage = this.parseThirdLevelStat(damage);
+
+           let firstPlayerDamage = this.parseFirstLevelStat(playerDamage);
+           let secondPlayerDamage = this.parseSecondLevelStat(playerDamage);
+           let thirdPlayerDamage = this.parseThirdLevelStat(playerDamage);
+
            console.log(`name: ${name}`);
            console.log(`cost: ${cost}`);
            console.log(`origins: ${origins}`);
            console.log(`classes: ${classes}`);
-           console.log(`health: ${health}`);
+           console.log(`firstHealth: ${firstHealth}`);
+           console.log(`secondHealth: ${secondHealth}`);
+           console.log(`thirdHealth: ${thirdHealth}`);
            console.log(`mana: ${mana}`);
            console.log(`startingMana: ${startingMana}`);
            console.log(`damage: ${damage}`);
+           console.log(`firstDamage: ${firstDamage}`);
+           console.log(`secondDamage: ${secondDamage}`);
+           console.log(`thirdDamage: ${thirdDamage}`);
            console.log(`attackSpeed: ${attackSpeed}`);
            console.log(`range: ${range}`);
            console.log(`armor: ${armor}`);
            console.log(`mr: ${mr}`);
            console.log(`playerDamage: ${playerDamage}`);
+           console.log(`firstPlayerDamage: ${firstPlayerDamage}`);
+           console.log(`secondPlayerDamage: ${secondPlayerDamage}`);
+           console.log(`thirdPlayerDamage: ${thirdPlayerDamage}`);
 
            return this;
        })();
+    }
+
+    parseFirstLevelStat(stat) {
+        const regex = '\\s*(\\d+)\\s*\\/\\s*\\d+\\s*\\/\\s*\\d+\\s*';
+        return regexUtils.getFirstCapturingGroup(stat, regex);
+    }
+
+    parseSecondLevelStat(stat) {
+        const regex = '\\s*\\d+\\s*\\/\\s*(\\d+)\\s*\\/\\s*\\d+\\s*';
+        return regexUtils.getFirstCapturingGroup(stat, regex);
+    }
+
+    parseThirdLevelStat(stat) {
+        const regex = '\\s*\\d+\\s*\\/\\s*\\d+\\s*\\/\\s*(\\d+)\\s*';
+        return regexUtils.getFirstCapturingGroup(stat, regex);
     }
 
     parseAttackSpeed() {
