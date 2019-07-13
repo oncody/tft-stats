@@ -20,10 +20,10 @@ class ChampionScraper {
            let classes = this.parseClasses();
            let health = this.getPiDataValueDataSource('health');
            let mana = this.getPiDataValueDataSource('mana');
-           // let startingMana = this.getPiDataValueDataSource('starting mana');
+           let startingMana = this.parseStartingMana();
            let damage = this.getPiDataValueDataSource('ad');
-           let attackSpeed = this.getPiDataValueDataSource('as');
-           let range = this.getPiDataValueDataSource('attack range');
+           let attackSpeed = this.parseAttackSpeed();
+           let range = this.parseAttackRange('attack range');
            let armor = this.getPiDataValueDataSource('armor');
            let mr = this.getPiDataValueDataSource('mr');
            let playerDamage = this.getPiDataValueDataSource('player damage');
@@ -34,6 +34,7 @@ class ChampionScraper {
            console.log(`classes: ${classes}`);
            console.log(`health: ${health}`);
            console.log(`mana: ${mana}`);
+           console.log(`startingMana: ${startingMana}`);
            console.log(`damage: ${damage}`);
            console.log(`attackSpeed: ${attackSpeed}`);
            console.log(`range: ${range}`);
@@ -45,12 +46,32 @@ class ChampionScraper {
        })();
     }
 
+    parseAttackSpeed() {
+        const regex = '<[^<>]+data-source\\s*=\\s*[\'"]as[\'"][^<>]*>.*<[^<>]+class\\s*=\\s*[\'"][^\'"]*pi-data-value[^\'"]*[\'"][^<>]*>\\s*(\\d)\\s*\\.\\s*(?:<small>)(\\d+)(?:<\\/small?)\\s*>';
+        let matches = regexUtils.getMatches(this.statsText, regex, 's');
+        return '' + matches[1] + '.' + matches[2];
+    }
+
+    parseStartingMana() {
+        try {
+            return this.getPiDataValueDataSource('starting mana');
+        } catch(err) {
+            return 0;
+        }
+    }
+
     parseName() {
         return this.getIdDataSource('mw-content-text', 1);
     }
 
+    parseAttackRange() {
+        const regex = '<[^<>]+data-source\\s*=\\s*[\'"]attack range[\'"][^<>]*>.*<span[^<>]*><a[^<>]*>.*<\\/a>\\s*[\'"]?(?:&nbsp)?;?(\\d)[\'"]?\\s*<\\/span>';
+        return regexUtils.getFirstCapturingGroup(this.statsText, regex, 's');
+    }
+
     parseCost() {
-        return regexUtils.getFirstCapturingGroup(this.statsText, 'title\\s*=\\s*[\'"](\\d)\\s*Gold\\s*[\'"]');
+        const regex = 'title\\s*=\\s*[\'"](\\d)\\s*Gold\\s*[\'"]';
+        return regexUtils.getFirstCapturingGroup(this.statsText, regex);
     }
 
     parseOrigins() {
@@ -72,7 +93,7 @@ class ChampionScraper {
     }
 
     parseClasses() {
-        const classesRegex = /(<td\s+[^<>]*data-source\s*=\s*['"]class['"][^<>]*>.*)<\/tr>/s;
+        const classesRegex = /(<td\s+[^<>]*data-source\s*=\s*['"]class['"][^<>]*>.*?)<\/tr>/s;
         const classRegex = /data-param=['"]([^'"]*)['"]/g;
 
         let classes = [];
@@ -114,7 +135,8 @@ class ChampionScraper {
     }
 
     getDataSourceClass(dataSource, className) {
-        return regexUtils.getFirstCapturingGroup(this.statsText, `<[^<>]+data-source\\s*=\\s*['"]${dataSource}['"][^<>]*>.*?<[^<>]+class\\s*=\\s*['"][^'"]*${className}[^'"]*['"][^<>]*>([^<>]*)<\\/`, 's');
+        const regex = `<[^<>]+data-source\\s*=\\s*['"]${dataSource}['"][^<>]*>.*?<[^<>]+class\\s*=\\s*['"][^'"]*${className}[^'"]*['"][^<>]*>([^<>]*)<\\/`;
+        return regexUtils.getFirstCapturingGroup(this.statsText, regex, 's');
     }
 
 }

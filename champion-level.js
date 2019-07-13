@@ -1,8 +1,8 @@
 class ChampionLevel {
-    constructor(health, damage, dps, playerDamage) {
+    constructor(attackSpeed, health, damage, playerDamage) {
         this.health = health;
         this.damage = damage;
-        this.dps = dps;
+        this.dps = attackSpeed * damage;
         this.playerDamage = playerDamage;
     }
 
