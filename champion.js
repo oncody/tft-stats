@@ -3,50 +3,28 @@ class Champion {
                 cost,
                 origins,
                 classes,
-                abilityName,
-                abilityText,
-                firstHealth,
-                secondHealth,
-                thirdHealth,
                 mana,
                 startingMana,
-                firstDamage,
-                secondDamage,
-                thirdDamage,
                 attackSpeed,
-                firstDps,
-                secondDps,
-                thirdDps,
                 range,
                 armor,
                 mr,
-                firstPlayerDamage,
-                secondPlayerDamage,
-                thirdPlayerDamage) {
+                firstLevel,
+                secondLevel,
+                thirdLevel) {
         this.name = name;
         this.cost = cost;
         this.origins = origins;
         this.classes = classes;
-        this.abilityName = abilityName;
-        this.abilityText = abilityText;
-        this.firstHealth = firstHealth;
-        this.secondHealth = secondHealth;
-        this.thirdHealth = thirdHealth;
         this.mana = mana;
         this.startingMana = startingMana;
-        this.firstDamage = firstDamage;
-        this.secondDamage = secondDamage;
-        this.thirdDamage = thirdDamage;
         this.attackSpeed = attackSpeed;
-        this.firstDps = firstDps;
-        this.secondDps = secondDps;
-        this.thirdDps = thirdDps;
         this.range = range;
         this.armor = armor;
         this.mr = mr;
-        this.firstPlayerDamage = firstPlayerDamage;
-        this.secondPlayerDamage = secondPlayerDamage;
-        this.thirdPlayerDamage = thirdPlayerDamage;
+        this.firstLevel = firstLevel;
+        this.secondLevel = secondLevel;
+        this.thirdLevel = thirdLevel;
     }
 
     getName() {
@@ -65,26 +43,6 @@ class Champion {
         return this.classes;
     }
 
-    getAbilityName() {
-        return this.abilityName;
-    }
-
-    getAbilityText() {
-        return this.abilityText;
-    }
-
-    getFirstHealth() {
-        return this.firstHealth;
-    }
-
-    getSecondHealth() {
-        return this.secondHealth;
-    }
-
-    getThirdHealth() {
-        return this.thirdHealth;
-    }
-
     getMana() {
         return this.mana;
     }
@@ -93,32 +51,8 @@ class Champion {
         return this.startingMana;
     }
 
-    getFirstDamage() {
-        return this.firstDamage;
-    }
-
-    getSecondDamage() {
-        return this.secondDamage;
-    }
-
-    getThirdDamage() {
-        return this.thirdDamage;
-    }
-
     getAttackSpeed() {
         return this.attackSpeed;
-    }
-
-    getFirstDps() {
-        return this.firstDps;
-    }
-
-    getSecondDps() {
-        return this.secondDps;
-    }
-
-    getThirdDps() {
-        return this.thirdDps;
     }
 
     getRange() {
@@ -133,16 +67,16 @@ class Champion {
         return this.mr;
     }
 
-    getFirstPlayerDamage() {
-        return this.firstPlayerDamage;
+    getFirstLevel() {
+        return this.firstLevel;
     }
 
-    getSecondPlayerDamage() {
-        return this.secondPlayerDamage;
+    getSecondLevel() {
+        return this.secondLevel;
     }
 
-    getThirdPlayerDamage() {
-        return this.thirdPlayerDamage;
+    getThirdLevel() {
+        return this.thirdLevel;
     }
 }
 

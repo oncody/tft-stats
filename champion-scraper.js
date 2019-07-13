@@ -1,42 +1,39 @@
 const fetch = require('node-fetch');
 const champion = require('./champion');
+const regexUtils = require('./regex-utils');
 
 class ChampionScraper {
 
     constructor(url) {
        return (async () => {
-           const statsRegex = /<aside.*<\/aside>/s;
+           // const statsRegex = /<aside.*<\/aside>/s;
 
            const response = await fetch(url);
            const body = await response.text();
-           let statsMatches = statsRegex.exec(body);
-           this.statsText = statsMatches[0];
+           // let statsMatches = statsRegex.exec(body);
+           // this.statsText = statsMatches[0];
+           this.statsText = body;
 
            let name = this.parseName();
            let cost = this.parseCost();
            let origins = this.parseOrigins();
            let classes = this.parseClasses();
-           let abilityName = this.parseAbilityName();
-           // let abilityDescription = this.parseAbilityDescription();
-           let health = this.getDataValue('health');
-           let mana = this.getDataValue('mana');
-           // let startingMana = this.getDataValue('starting mana');
-           let damage = this.getDataValue('ad');
-           let attackSpeed = this.getDataValue('as');
-           let range = this.getDataValue('attack range');
-           let armor = this.getDataValue('armor');
-           let mr = this.getDataValue('mr');
-           let playerDamage = this.getDataValue('player damage');
+           let health = this.getPiDataValueDataSource('health');
+           let mana = this.getPiDataValueDataSource('mana');
+           // let startingMana = this.getPiDataValueDataSource('starting mana');
+           let damage = this.getPiDataValueDataSource('ad');
+           let attackSpeed = this.getPiDataValueDataSource('as');
+           let range = this.getPiDataValueDataSource('attack range');
+           let armor = this.getPiDataValueDataSource('armor');
+           let mr = this.getPiDataValueDataSource('mr');
+           let playerDamage = this.getPiDataValueDataSource('player damage');
 
            console.log(`name: ${name}`);
            console.log(`cost: ${cost}`);
            console.log(`origins: ${origins}`);
            console.log(`classes: ${classes}`);
-           console.log(`abilityName: ${abilityName}`);
-           // console.log(`abilityDescription: ${abilityDescription}`);
            console.log(`health: ${health}`);
            console.log(`mana: ${mana}`);
-           // console.log(`startingMana: ${startingMana}`);
            console.log(`damage: ${damage}`);
            console.log(`attackSpeed: ${attackSpeed}`);
            console.log(`range: ${range}`);
@@ -49,15 +46,11 @@ class ChampionScraper {
     }
 
     parseName() {
-        const nameRegex = /<[^<>]+class\s*=\s*['"][^'"]*pi-title[^'"]*['"][^<>]*>\s*([^\s<>]+)\s*[<>]/;
-        let matches = nameRegex.exec(this.statsText);
-        return matches[1];
+        return this.getIdDataSource('mw-content-text', 1);
     }
 
     parseCost() {
-        const costRegex = /title\s*=\s*['"](\d)\s*Gold\s*['"]/;
-        let matches = costRegex.exec(this.statsText);
-        return matches[1];
+        return regexUtils.getFirstCapturingGroup(this.statsText, 'title\\s*=\\s*[\'"](\\d)\\s*Gold\\s*[\'"]');
     }
 
     parseOrigins() {
@@ -97,34 +90,31 @@ class ChampionScraper {
 
     }
 
-    parseAbilityName() {
-        // const abilityNameRegex = /<[^<>]+data-source\s*=\s*['"]ability name['"][^<>]*>.*?<[^<>]+class\s*=\s*['"]pi-data-value[^'"]*['"][^<>]*>.*?<span[^<>]*>([^<>]*)<\/span>/s;
-        // let matches = abilityNameRegex.exec(this.statsText);
-        // return matches[1];
-        return this.getDataValueNestedInSpan('ability name');
+    getIdDataSource(id, dataSource) {
+        let value = '';
+        const regex = `<[^<>]+id\\s*=\\s*['"]${id}['"].*data-source\\s*=\\s*['"]${dataSource}['"][^<>]*>`;
+        let match = regexUtils.getEntireMatch(this.statsText, regex, 's');
+        let startIndex = this.statsText.indexOf(match);
+        let endIndex = startIndex + match.length;
+        let cursor = endIndex;
+        let currentChar = this.statsText.charAt(cursor);
+
+        // read until we reach a >
+        while(currentChar !== '>' && currentChar !== '<') {
+            value += currentChar;
+            cursor++;
+            currentChar = this.statsText.charAt(cursor);
+        }
+
+        return value;
     }
 
-    parseAbilityDescription() {
-        // const abilityDescrptionRegex = /<[^<>]+data-source\s*=\s*['"]ability description['"][^<>]*>.*?<[^<>]+class\s*=\s*['"]pi-data-value[^'"]*['"][^<>]*>.*?<span[^<>]*>([^<>]*)<\/span>/s;
-        // let matches = abilityDescrptionRegex.exec(this.statsText);
-        // return matches[1];
-        return '';
+    getPiDataValueDataSource(dataSource) {
+        return this.getDataSourceClass(dataSource, 'pi-data-value');
     }
 
-    parseHealth() {
-        return
-    }
-
-    getDataValueNestedInSpan(dataSource) {
-        const regex = new RegExp(`<[^<>]+data-source\s*=\s*['"]${dataSource}['"][^<>]*>.*?<[^<>]+class\s*=\s*['"]pi-data-value[^'"]*['"][^<>]*>.*?<span[^<>]*>([^<>]*)<\/span>`, 's');
-        let matches = regex.exec(this.statsText);
-        return matches[1];
-    }
-
-    getDataValue(dataSource) {
-        const regex = new RegExp(`<[^<>]+data-source\\s*=\\s*['"]${dataSource}['"][^<>]*>.*?<[^<>]+class\\s*=\\s*['"]pi-data-value[^'"]*['"][^<>]*>([^<>]*)<\\/`, 's');
-        let matches = regex.exec(this.statsText);
-        return matches[1];
+    getDataSourceClass(dataSource, className) {
+        return regexUtils.getFirstCapturingGroup(this.statsText, `<[^<>]+data-source\\s*=\\s*['"]${dataSource}['"][^<>]*>.*?<[^<>]+class\\s*=\\s*['"][^'"]*${className}[^'"]*['"][^<>]*>([^<>]*)<\\/`, 's');
     }
 
 }
