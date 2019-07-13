@@ -22,3 +22,5 @@ class ChampionLevel {
         return this.playerDamage;
     }
 }
+
+module.exports = ChampionLevel;

@@ -1,5 +1,6 @@
 const fetch = require('node-fetch');
-const champion = require('./champion');
+const Champion = require('./champion');
+const ChampionLevel = require('./champion-level');
 const regexUtils = require('./regex-utils');
 
 class ChampionScraper {
@@ -15,17 +16,19 @@ class ChampionScraper {
            this.statsText = body;
 
            let name = this.parseName();
+           console.log(`name: ${name}`);
+
            let cost = this.parseCost();
            let origins = this.parseOrigins();
            let classes = this.parseClasses();
            let health = this.getPiDataValueDataSource('health');
-           let mana = this.getPiDataValueDataSource('mana');
+           let mana = parseInt(this.getPiDataValueDataSource('mana'));
            let startingMana = this.parseStartingMana();
            let damage = this.getPiDataValueDataSource('ad');
            let attackSpeed = this.parseAttackSpeed();
            let range = this.parseAttackRange('attack range');
-           let armor = this.getPiDataValueDataSource('armor');
-           let mr = this.getPiDataValueDataSource('mr');
+           let armor = parseInt(this.getPiDataValueDataSource('armor'));
+           let mr = parseInt(this.getPiDataValueDataSource('mr'));
            let playerDamage = this.getPiDataValueDataSource('player damage');
 
            let firstHealth = this.parseFirstLevelStat(health);
@@ -40,56 +43,52 @@ class ChampionScraper {
            let secondPlayerDamage = this.parseSecondLevelStat(playerDamage);
            let thirdPlayerDamage = this.parseThirdLevelStat(playerDamage);
 
-           console.log(`name: ${name}`);
-           console.log(`cost: ${cost}`);
-           console.log(`origins: ${origins}`);
-           console.log(`classes: ${classes}`);
-           console.log(`firstHealth: ${firstHealth}`);
-           console.log(`secondHealth: ${secondHealth}`);
-           console.log(`thirdHealth: ${thirdHealth}`);
-           console.log(`mana: ${mana}`);
-           console.log(`startingMana: ${startingMana}`);
-           console.log(`damage: ${damage}`);
-           console.log(`firstDamage: ${firstDamage}`);
-           console.log(`secondDamage: ${secondDamage}`);
-           console.log(`thirdDamage: ${thirdDamage}`);
-           console.log(`attackSpeed: ${attackSpeed}`);
-           console.log(`range: ${range}`);
-           console.log(`armor: ${armor}`);
-           console.log(`mr: ${mr}`);
-           console.log(`playerDamage: ${playerDamage}`);
-           console.log(`firstPlayerDamage: ${firstPlayerDamage}`);
-           console.log(`secondPlayerDamage: ${secondPlayerDamage}`);
-           console.log(`thirdPlayerDamage: ${thirdPlayerDamage}`);
+           let firstLevel = new ChampionLevel(attackSpeed, firstHealth, firstDamage, firstPlayerDamage);
+           let secondLevel = new ChampionLevel(attackSpeed, secondHealth, secondDamage, secondPlayerDamage);
+           let thirdLevel = new ChampionLevel(attackSpeed, thirdHealth, thirdDamage, thirdPlayerDamage);
+           this.champion = new Champion(name, cost, origins, classes, mana, startingMana, attackSpeed, range, armor, mr, firstLevel, secondLevel, thirdLevel);
 
            return this;
        })();
     }
 
+    parseChampion() {
+        return this.champion;
+    }
+
     parseFirstLevelStat(stat) {
         const regex = '\\s*(\\d+)\\s*\\/\\s*\\d+\\s*\\/\\s*\\d+\\s*';
-        return regexUtils.getFirstCapturingGroup(stat, regex);
+        let match = regexUtils.getFirstCapturingGroup(stat, regex);
+        return parseInt(match);
     }
 
     parseSecondLevelStat(stat) {
         const regex = '\\s*\\d+\\s*\\/\\s*(\\d+)\\s*\\/\\s*\\d+\\s*';
-        return regexUtils.getFirstCapturingGroup(stat, regex);
+        let match = regexUtils.getFirstCapturingGroup(stat, regex);
+        return parseInt(match);
     }
 
     parseThirdLevelStat(stat) {
         const regex = '\\s*\\d+\\s*\\/\\s*\\d+\\s*\\/\\s*(\\d+)\\s*';
-        return regexUtils.getFirstCapturingGroup(stat, regex);
+        let match = regexUtils.getFirstCapturingGroup(stat, regex);
+        return parseInt(match);
     }
 
     parseAttackSpeed() {
-        const regex = '<[^<>]+data-source\\s*=\\s*[\'"]as[\'"][^<>]*>.*<[^<>]+class\\s*=\\s*[\'"][^\'"]*pi-data-value[^\'"]*[\'"][^<>]*>\\s*(\\d)\\s*\\.\\s*(?:<small>)(\\d+)(?:<\\/small?)\\s*>';
+        let attackSpeed = '';
+        const regex = '<[^<>]+data-source\\s*=\\s*[\'"]as[\'"][^<>]*>.*?<[^<>]+class\\s*=\\s*[\'"][^\'"]*pi-data-value[^\'"]*[\'"][^<>]*>\\s*(\\d)\\s*\\.?\\s*(?:<small>)?(\\d+)?(?:<\\/small>)?\\s*<';
         let matches = regexUtils.getMatches(this.statsText, regex, 's');
-        return '' + matches[1] + '.' + matches[2];
+        attackSpeed += matches[1];
+        if(matches[2]) {
+            attackSpeed += '.' + matches[2];
+        }
+        return Number(attackSpeed);
     }
 
     parseStartingMana() {
         try {
-            return this.getPiDataValueDataSource('starting mana');
+            let match = this.getPiDataValueDataSource('starting mana');
+            return parseInt(match);
         } catch(err) {
             return 0;
         }
@@ -101,12 +100,14 @@ class ChampionScraper {
 
     parseAttackRange() {
         const regex = '<[^<>]+data-source\\s*=\\s*[\'"]attack range[\'"][^<>]*>.*<span[^<>]*><a[^<>]*>.*<\\/a>\\s*[\'"]?(?:&nbsp)?;?(\\d)[\'"]?\\s*<\\/span>';
-        return regexUtils.getFirstCapturingGroup(this.statsText, regex, 's');
+        let match = regexUtils.getFirstCapturingGroup(this.statsText, regex, 's');
+        return parseInt(match);
     }
 
     parseCost() {
         const regex = 'title\\s*=\\s*[\'"](\\d)\\s*Gold\\s*[\'"]';
-        return regexUtils.getFirstCapturingGroup(this.statsText, regex);
+        let match = regexUtils.getFirstCapturingGroup(this.statsText, regex);
+        return parseInt(match);
     }
 
     parseOrigins() {
@@ -166,7 +167,8 @@ class ChampionScraper {
     }
 
     getPiDataValueDataSource(dataSource) {
-        return this.getDataSourceClass(dataSource, 'pi-data-value');
+        let match = this.getDataSourceClass(dataSource, 'pi-data-value');
+        return match;
     }
 
     getDataSourceClass(dataSource, className) {

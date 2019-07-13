@@ -5,17 +5,36 @@ const ChampionScraper = require('./champion-scraper');
     const urlBase = 'https://leagueoflegends.fandom.com';
     const url = urlBase + '/wiki/Teamfight_Tactics:Champions#Stat%20List';
     let championUrls = await getChampionUrls(url);
-
-    let firstChampionUrl = championUrls.values().next().value;
-    let kennenChampionUrl;
+    let champions = [];
 
     for(let championUrl of championUrls) {
-        if(championUrl.toLowerCase().includes('gangplank')) {
-            kennenChampionUrl = championUrl;
+        if(championUrl.toLowerCase().includes('twisted_fate')) {
+            continue;
         }
+
+        let championScraper = await new ChampionScraper(urlBase + championUrl);
+        champions.push(championScraper.parseChampion());
     }
 
-    let championScraper = await new ChampionScraper(urlBase + kennenChampionUrl);
+    let oneCostChampions = champions.filter(function(champion) {
+       return champion.getCost() === 1;
+    });
+
+    let twoCostChampions = champions.filter(function(champion) {
+        return champion.getCost() === 2
+    });
+
+    let threeCostChampions = champions.filter(function(champion) {
+        return champion.getCost() === 3;
+    });
+
+    let fourCostChampions = champions.filter(function(champion) {
+        return champion.getCost() === 4;
+    });
+
+    let fiveCostChampions = champions.filter(function(champion) {
+        return champion.getCost() === 5;
+    });
 })();
 
 async function getChampionUrls(url) {
