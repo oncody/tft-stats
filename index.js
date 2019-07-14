@@ -31,51 +31,53 @@ const config = new ConfigStore('tft-stats');
         champions.push(config.get(championUrlName));
     }
 
-    let oneCostChampions = champions.filter(function(champion) {
-       return champion.cost === 1;
+    analyzeChampionsPerCost(champions, 1);
+    analyzeChampionsPerCost(champions, 2);
+    analyzeChampionsPerCost(champions, 3);
+    analyzeChampionsPerCost(champions, 4);
+    analyzeChampionsPerCost(champions, 5);
+
+    // printHighestStats(interestingChampions, champion => champion.firstLevel.effectiveHealth);
+    // printHighestStats(interestingChampions, champion => champion.firstLevel.dps);
+
+})();
+
+function analyzeChampionsPerCost(allChampions, cost) {
+    let champions = allChampions.filter(function(champion) {
+        // return champion.cost < cost + 1;
+        return champion.cost === cost;
     });
 
-    let averageHealth = averageStat(oneCostChampions, champion => champion.firstLevel.health);
-    let averageEffectiveHealth = averageStat(oneCostChampions, champion => champion.firstLevel.effectiveHealth);
-    let averageDps = averageStat(oneCostChampions, champion => champion.firstLevel.dps);
-    console.log('averageHealth: ' + lodash.round(averageHealth, 2));
-    console.log('averageEffectiveHealth: ' + lodash.round(averageEffectiveHealth, 2));
-    console.log('averageDps: ' + lodash.round(averageDps, 2));
+    let averageHealth = averageStat(champions, champion => champion.firstLevel.health);
+    let averageEffectiveHealth = averageStat(champions, champion => champion.firstLevel.effectiveHealth);
+    let averageDps = averageStat(champions, champion => champion.firstLevel.dps);
+    let averageDpsBeforeDying = averageStat(champions, champion => getChampionDpsBeforeDying(champion, averageDps));
 
-    // printHighestStats(oneCostChampions, champion => champion.getFirstLevel().getEffectiveHealth());
-    // printHighestStats(oneCostChampions, champion => champion.getFirstLevel().getDps());
+    console.log('\n\n');
 
+    // console.log('averageHealth: ' + lodash.round(averageHealth, 2));
+    // console.log('averageEffectiveHealth: ' + lodash.round(averageEffectiveHealth, 2));
+    // console.log('averageDps: ' + lodash.round(averageDps, 2));
+    // console.log('averageDpsBeforeDying: ' + lodash.round(averageDpsBeforeDying, 2));
 
-    oneCostChampions.sort((a, b) => {
+    champions.sort((a, b) => {
         let aDpsBeforeDying = getChampionDpsBeforeDying(a, averageDps);
         let bDpsBeforeDying = getChampionDpsBeforeDying(b, averageDps);
         return bDpsBeforeDying - aDpsBeforeDying;
     });
-    for(let champion of oneCostChampions) {
+    for(let champion of champions) {
         console.log(`${champion.cost} ` +
             `${champion.name} | ` +
+            `${lodash.round(getChampionDpsBeforeDying(champion, averageDps) / averageDpsBeforeDying, 2)} | ` +
             `${lodash.round(getChampionDpsBeforeDying(champion, averageDps), 2)} | ` +
             `${lodash.round(champion.firstLevel.effectiveHealth, 2)} | ` +
-            `${lodash.round(champion.firstLevel.dps, 2)} `);
+            `${lodash.round(champion.firstLevel.dps, 2)} | ` +
+            `${lodash.round(champion.attackSpeed, 2)} | ` +
+            `${champion.origins} | ` +
+            `${champion.classes}`);
     }
 
-
-    // let twoCostChampions = champions.filter(function(champion) {
-    //     return champion.cost === 2
-    // });
-    //
-    // let threeCostChampions = champions.filter(function(champion) {
-    //     return champion.cost === 3;
-    // });
-    //
-    // let fourCostChampions = champions.filter(function(champion) {
-    //     return champion.cost === 4;
-    // });
-    //
-    // let fiveCostChampions = champions.filter(function(champion) {
-    //     return champion.cost === 5;
-    // });
-})();
+}
 
 function getChampionDpsBeforeDying(champion, averageDps) {
     return champion.firstLevel.effectiveHealth / averageDps * champion.firstLevel.dps;
@@ -84,7 +86,9 @@ function getChampionDpsBeforeDying(champion, averageDps) {
 function printHighestStats(champions, championStatFunction) {
     champions.sort((a, b) => championStatFunction(b) - championStatFunction(a));
     for(let champion of champions) {
-        console.log(`${champion.getName()}: ${championStatFunction(champion)}`);
+        console.log(`${champion.cost} ` +
+            `${champion.name} | ` +
+            `${lodash.round(championStatFunction(champion), 2)} `);
     }
 }
 
