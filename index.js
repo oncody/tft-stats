@@ -6,6 +6,39 @@ const lodash = require('lodash');
 
 const config = new ConfigStore('tft-stats');
 
+const favoriteChampions =
+    [
+        'garen',
+        'warwick',
+        'darius',
+        'tristana',
+        'nidalee',
+        'braum',
+        'shen',
+        'blitzcrank',
+        'rek\'sai',
+        'lucian',
+        'zed',
+        'pyke',
+        'varus',
+        'poppy',
+        'aatrox',
+        'volibear',
+        'kennen',
+        'ashe',
+        'cho\'gath',
+        'leona',
+        'gnar',
+        'sejuani',
+        'akali',
+        'draven',
+        'kayle',
+        'karthus',
+        'swain',
+        'yasuo',
+        'miss fortune'
+    ];
+
 (async function () {
     const championUrlRegexName = 'Teamfight_Tactics:(.*?)\\s*$';
     const urlBase = 'https://leagueoflegends.fandom.com';
@@ -31,14 +64,66 @@ const config = new ConfigStore('tft-stats');
         champions.push(config.get(championUrlName));
     }
 
-    analyzeChampionsPerCost(champions, 5);
+    let origins = [];
+    let classes = [];
+    for(let name of favoriteChampions) {
+        let champ = champions.find(champ => champ.name.toLowerCase() === name);
+        if(!champ) {
+            console.log('coulnt find ' + name);
+        }
+
+        for(let name of champ.origins) {
+            let foundOrigin = origins.find(origin => origin.name === name);
+            if(foundOrigin) {
+                foundOrigin.count++;
+            } else {
+                origins.push({
+                    name: name,
+                    count: 1
+                });
+            }
+        }
+
+        for(let name of champ.classes) {
+            let foundClass = classes.find(champClass => champClass.name === name);
+            if(foundClass) {
+                foundClass.count++;
+            } else {
+                classes.push({
+                    name: name,
+                    count: 1
+                });
+            }
+        }
+    }
+
+
+    let synergies = origins.concat(classes);
+
+    origins.sort((a, b) => b.count - a.count);
+    classes.sort((a, b) => b.count - a.count);
+    synergies.sort((a, b) => b.count - a.count);
+
+    for(let synergy of origins) {
+        // console.log(`${synergy.name}: ${synergy.count}`);
+    }
+
+    console.log('\n\n');
+
+    for(let synergy of classes) {
+        // console.log(`${synergy.name}: ${synergy.count}`);
+    }
+
+    for(let synergy of synergies) {
+        // console.log(`${synergy.name}: ${synergy.count}`);
+    }
+
+    // analyzeChampionsPerCost(champions, 1);
     // analyzeChampionsPerCost(champions, 2);
     // analyzeChampionsPerCost(champions, 3);
     // analyzeChampionsPerCost(champions, 4);
-    // analyzeChampionsPerCost(champions, 5);
+    analyzeChampionsPerCost(champions, 5);
 
-    // printHighestStats(interestingChampions, champion => champion.firstLevel.effectiveHealth);
-    // printHighestStats(interestingChampions, champion => champion.firstLevel.dps);
 
 })();
 
@@ -55,6 +140,11 @@ function analyzeChampionsPerCost(allChampions, cost) {
     let averageEffectiveHealth = averageStat(champions, champion => champion.thirdLevel.effectiveHealth);
     let averageDps = averageStat(champions, champion => champion.thirdLevel.dps);
     let averageDpsBeforeDying = averageStat(champions, champion => getChampionDpsBeforeDying(champion, averageDps));
+
+    console.log('\n\n');
+
+    printHighestStats(champions, averageEffectiveHealth, champion => champion.thirdLevel.effectiveHealth);
+    printHighestStats(champions, averageDps, champion => champion.thirdLevel.dps);
 
     console.log('\n\n');
 
@@ -120,7 +210,7 @@ function analyzeChampionsPerCost(allChampions, cost) {
     synergies.sort((a, b) => b.averageValue - a.averageValue);
 
     for(let synergy of synergies) {
-        console.log(`${synergy.name}: ${lodash.round(synergy.averageValue, 2)} | ${synergy.count}`);
+        // console.log(`${synergy.name}: ${lodash.round(synergy.averageValue, 2)} | ${synergy.count}`);
     }
 
 
@@ -131,11 +221,14 @@ function getChampionDpsBeforeDying(champion, averageDps) {
     return champion.thirdLevel.effectiveHealth / averageDps * champion.thirdLevel.dps;
 }
 
-function printHighestStats(champions, championStatFunction) {
+function printHighestStats(champions, averageStat, championStatFunction) {
+    console.log('\n\n');
+
     champions.sort((a, b) => championStatFunction(b) - championStatFunction(a));
     for(let champion of champions) {
         console.log(`${champion.cost} ` +
             `${champion.name} | ` +
+            `${lodash.round(championStatFunction(champion) / averageStat, 2)} | ` +
             `${lodash.round(championStatFunction(champion), 2)} `);
     }
 }
