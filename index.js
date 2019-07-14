@@ -22,8 +22,23 @@ const ChampionScraper = require('./champion-scraper');
 
     let averageHealth = averageStat(oneCostChampions, champion => champion.getFirstLevel().getHealth());
     let averageEffectiveHealth = averageStat(oneCostChampions, champion => champion.getFirstLevel().getEffectiveHealth());
+    let averageDps = averageStat(oneCostChampions, champion => champion.getFirstLevel().getDps());
     console.log('averageHealth: ' + averageHealth);
     console.log('averageEffectiveHealth: ' + averageEffectiveHealth);
+    console.log('averageDps: ' + averageDps);
+
+    printHighestStats(oneCostChampions, champion => champion.getFirstLevel().getEffectiveHealth());
+    printHighestStats(oneCostChampions, champion => champion.getFirstLevel().getDps());
+
+
+    oneCostChampions.sort((a, b) => {
+        let aDpsBeforeDying = getChampionDpsBeforeDying(a, averageDps);
+        let bDpsBeforeDying = getChampionDpsBeforeDying(b, averageDps);
+        return bDpsBeforeDying - aDpsBeforeDying;
+    });
+    for(let champion of oneCostChampions) {
+        console.log(`${champion.getName()}: ${getChampionDpsBeforeDying(champion, averageDps)}`);
+    }
 
 
     let twoCostChampions = champions.filter(function(champion) {
@@ -43,10 +58,21 @@ const ChampionScraper = require('./champion-scraper');
     });
 })();
 
-function averageStat(arr, fn) {
-    let reducer = (accumulator, champion) => accumulator + fn(champion);
-    let total = arr.reduce(reducer, 0);
-    return total / arr.length;
+function getChampionDpsBeforeDying(champion, averageDps) {
+    return champion.getFirstLevel().getEffectiveHealth() / averageDps * champion.getFirstLevel().getDps();
+}
+
+function printHighestStats(champions, championStatFunction) {
+    champions.sort((a, b) => championStatFunction(b) - championStatFunction(a));
+    for(let champion of champions) {
+        console.log(`${champion.getName()}: ${championStatFunction(champion)}`);
+    }
+}
+
+function averageStat(champions, championStatFunction) {
+    let reducer = (accumulator, champion) => accumulator + championStatFunction(champion);
+    let total = champions.reduce(reducer, 0);
+    return total / champions.length;
 }
 
 async function getChampionUrls(url) {
