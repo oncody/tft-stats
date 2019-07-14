@@ -16,7 +16,7 @@ class ChampionScraper {
            this.statsText = body;
 
            let name = this.parseName();
-           console.log(`name: ${name}`);
+           // console.log(`name: ${name}`);
 
            let cost = this.parseCost();
            let origins = this.parseOrigins();

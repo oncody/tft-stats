@@ -18,6 +18,8 @@
   },
   "homepage": "https://github.com/oncody/tft-stats#readme",
   "dependencies": {
+    "configstore": "^5.0.0",
+    "lodash": "^4.17.14",
     "node-fetch": "^2.6.0"
   }
 }

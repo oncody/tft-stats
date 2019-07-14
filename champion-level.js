@@ -5,11 +5,14 @@ class ChampionLevel {
         this.health = health;
         this.damage = damage;
         this.playerDamage = playerDamage;
+        this.dps = attackSpeed * damage;
+
+        let armorPercent = armor / 100;
+        this.effectiveHealth = health + (armorPercent * health);
     }
 
     getEffectiveHealth() {
-        let armorPercent = this.armor / 100;
-        return this.health + (armorPercent * this.health);
+        return this.effectiveHealth;
     }
 
     getHealth() {
@@ -21,7 +24,7 @@ class ChampionLevel {
     }
 
     getDps() {
-        return this.attackSpeed * this.damage;
+        return this.dps;
     }
 
     getPlayerDamage() {

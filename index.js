@@ -1,34 +1,49 @@
+const ConfigStore = require('configstore');
 const fetch = require('node-fetch');
 const ChampionScraper = require('./champion-scraper');
+const regexUtils = require('./regex-utils');
+const lodash = require('lodash');
+
+const config = new ConfigStore('tft-stats');
 
 (async function () {
+    const championUrlRegexName = 'Teamfight_Tactics:(.*?)\\s*$';
     const urlBase = 'https://leagueoflegends.fandom.com';
     const url = urlBase + '/wiki/Teamfight_Tactics:Champions#Stat%20List';
     let championUrls = await getChampionUrls(url);
     let champions = [];
+
+    // todo: remove this line
+    // config.clear();
 
     for(let championUrl of championUrls) {
         if(championUrl.toLowerCase().includes('twisted_fate')) {
             continue;
         }
 
-        let championScraper = await new ChampionScraper(urlBase + championUrl);
-        champions.push(championScraper.parseChampion());
+        let championUrlName = regexUtils.getFirstCapturingGroup(championUrl, championUrlRegexName);
+        if(!config.has(championUrlName)) {
+            let championScraper = await new ChampionScraper(urlBase + championUrl);
+            let champion = championScraper.parseChampion();
+            config.set(championUrlName, champion);
+        }
+
+        champions.push(config.get(championUrlName));
     }
 
     let oneCostChampions = champions.filter(function(champion) {
-       return champion.getCost() === 1;
+       return champion.cost === 1;
     });
 
-    let averageHealth = averageStat(oneCostChampions, champion => champion.getFirstLevel().getHealth());
-    let averageEffectiveHealth = averageStat(oneCostChampions, champion => champion.getFirstLevel().getEffectiveHealth());
-    let averageDps = averageStat(oneCostChampions, champion => champion.getFirstLevel().getDps());
-    console.log('averageHealth: ' + averageHealth);
-    console.log('averageEffectiveHealth: ' + averageEffectiveHealth);
-    console.log('averageDps: ' + averageDps);
+    let averageHealth = averageStat(oneCostChampions, champion => champion.firstLevel.health);
+    let averageEffectiveHealth = averageStat(oneCostChampions, champion => champion.firstLevel.effectiveHealth);
+    let averageDps = averageStat(oneCostChampions, champion => champion.firstLevel.dps);
+    console.log('averageHealth: ' + lodash.round(averageHealth, 2));
+    console.log('averageEffectiveHealth: ' + lodash.round(averageEffectiveHealth, 2));
+    console.log('averageDps: ' + lodash.round(averageDps, 2));
 
-    printHighestStats(oneCostChampions, champion => champion.getFirstLevel().getEffectiveHealth());
-    printHighestStats(oneCostChampions, champion => champion.getFirstLevel().getDps());
+    // printHighestStats(oneCostChampions, champion => champion.getFirstLevel().getEffectiveHealth());
+    // printHighestStats(oneCostChampions, champion => champion.getFirstLevel().getDps());
 
 
     oneCostChampions.sort((a, b) => {
@@ -37,29 +52,33 @@ const ChampionScraper = require('./champion-scraper');
         return bDpsBeforeDying - aDpsBeforeDying;
     });
     for(let champion of oneCostChampions) {
-        console.log(`${champion.getName()}: ${getChampionDpsBeforeDying(champion, averageDps)}`);
+        console.log(`${champion.cost} ` +
+            `${champion.name} | ` +
+            `${lodash.round(getChampionDpsBeforeDying(champion, averageDps), 2)} | ` +
+            `${lodash.round(champion.firstLevel.effectiveHealth, 2)} | ` +
+            `${lodash.round(champion.firstLevel.dps, 2)} `);
     }
 
 
-    let twoCostChampions = champions.filter(function(champion) {
-        return champion.getCost() === 2
-    });
-
-    let threeCostChampions = champions.filter(function(champion) {
-        return champion.getCost() === 3;
-    });
-
-    let fourCostChampions = champions.filter(function(champion) {
-        return champion.getCost() === 4;
-    });
-
-    let fiveCostChampions = champions.filter(function(champion) {
-        return champion.getCost() === 5;
-    });
+    // let twoCostChampions = champions.filter(function(champion) {
+    //     return champion.cost === 2
+    // });
+    //
+    // let threeCostChampions = champions.filter(function(champion) {
+    //     return champion.cost === 3;
+    // });
+    //
+    // let fourCostChampions = champions.filter(function(champion) {
+    //     return champion.cost === 4;
+    // });
+    //
+    // let fiveCostChampions = champions.filter(function(champion) {
+    //     return champion.cost === 5;
+    // });
 })();
 
 function getChampionDpsBeforeDying(champion, averageDps) {
-    return champion.getFirstLevel().getEffectiveHealth() / averageDps * champion.getFirstLevel().getDps();
+    return champion.firstLevel.effectiveHealth / averageDps * champion.firstLevel.dps;
 }
 
 function printHighestStats(champions, championStatFunction) {
