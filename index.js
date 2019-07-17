@@ -108,8 +108,6 @@ const favoriteChampions =
         // console.log(`${synergy.name}: ${synergy.count}`);
     }
 
-    console.log('\n\n');
-
     for(let synergy of classes) {
         // console.log(`${synergy.name}: ${synergy.count}`);
     }
@@ -118,90 +116,86 @@ const favoriteChampions =
         // console.log(`${synergy.name}: ${synergy.count}`);
     }
 
-    // analyzeChampionsPerCost(champions, 1);
+    analyzeChampionsPerCost(champions, 1);
     // analyzeChampionsPerCost(champions, 2);
     // analyzeChampionsPerCost(champions, 3);
     // analyzeChampionsPerCost(champions, 4);
-    analyzeChampionsPerCost(champions, 5);
+    // analyzeChampionsPerCost(champions, 5);
 
 
 })();
 
 function analyzeChampionsPerCost(allChampions, cost) {
     let champions = allChampions.filter(function(champion) {
-        return champion.cost < cost + 1;
-        // return champion.cost === cost;
+        // return champion.cost < cost + 1;
+        return champion.cost === cost;
     });
 
     let origins = [];
     let classes = [];
 
-    let averageHealth = averageStat(champions, champion => champion.thirdLevel.health);
     let averageEffectiveHealth = averageStat(champions, champion => champion.thirdLevel.effectiveHealth);
     let averageDps = averageStat(champions, champion => champion.thirdLevel.dps);
     let averageDpsBeforeDying = averageStat(champions, champion => getChampionDpsBeforeDying(champion, averageDps));
 
-    console.log('\n\n');
-
-    printHighestStats(champions, averageEffectiveHealth, champion => champion.thirdLevel.effectiveHealth);
-    printHighestStats(champions, averageDps, champion => champion.thirdLevel.dps);
-
-    console.log('\n\n');
+    printHighestStats('health', champions, averageEffectiveHealth, champion => champion.thirdLevel.effectiveHealth);
+    printHighestStats('dps', champions, averageDps, champion => champion.thirdLevel.dps);
+    printHighestDpsPlusHealth(champions, averageDps, averageEffectiveHealth);
 
     // console.log('averageHealth: ' + lodash.round(averageHealth, 2));
     // console.log('averageEffectiveHealth: ' + lodash.round(averageEffectiveHealth, 2));
     // console.log('averageDps: ' + lodash.round(averageDps, 2));
     // console.log('averageDpsBeforeDying: ' + lodash.round(averageDpsBeforeDying, 2));
 
-    champions.sort((a, b) => {
-        let aDpsBeforeDying = getChampionDpsBeforeDying(a, averageDps);
-        let bDpsBeforeDying = getChampionDpsBeforeDying(b, averageDps);
-        return bDpsBeforeDying - aDpsBeforeDying;
-    });
-    for(let champion of champions) {
-        for(let originName of champion.origins) {
-            let foundOrigin = origins.find(origin => origin.name === originName);
-
-            if(foundOrigin) {
-                foundOrigin.count++;
-                foundOrigin.valueSum += getChampionDpsBeforeDying(champion, averageDps) / averageDpsBeforeDying;
-                foundOrigin.averageValue = foundOrigin.valueSum / foundOrigin.count;
-            } else {
-                let origin = {};
-                origin.name = originName;
-                origin.count = 1;
-                origin.valueSum = getChampionDpsBeforeDying(champion, averageDps) / averageDpsBeforeDying;
-                origin.averageValue = getChampionDpsBeforeDying(champion, averageDps) / averageDpsBeforeDying;
-                origins.push(origin);
-            }
-        }
-
-        for(let className of champion.classes) {
-            let foundClass = classes.find(championClass => championClass.name === className);
-            if(foundClass) {
-                foundClass.count++;
-                foundClass.valueSum += getChampionDpsBeforeDying(champion, averageDps) / averageDpsBeforeDying;
-                foundClass.averageValue = foundClass.valueSum / foundClass.count;
-            } else {
-                let championClass = {};
-                championClass.name = className;
-                championClass.count = 1;
-                championClass.valueSum = getChampionDpsBeforeDying(champion, averageDps) / averageDpsBeforeDying;
-                championClass.averageValue = getChampionDpsBeforeDying(champion, averageDps) / averageDpsBeforeDying;
-                classes.push(championClass);
-            }
-        }
-
-        console.log(`${champion.cost} ` +
-            `${champion.name} | ` +
-            `${lodash.round(getChampionDpsBeforeDying(champion, averageDps) / averageDpsBeforeDying, 2)} | ` +
-            `${lodash.round(getChampionDpsBeforeDying(champion, averageDps), 2)} | ` +
-            `${lodash.round(champion.thirdLevel.effectiveHealth, 2)} | ` +
-            `${lodash.round(champion.thirdLevel.dps, 2)} | ` +
-            `${lodash.round(champion.attackSpeed, 2)} | ` +
-            `${champion.origins} | ` +
-            `${champion.classes}`);
-    }
+    // champions.sort((a, b) => {
+    //     let aDpsBeforeDying = getChampionDpsBeforeDying(a, averageDps);
+    //     let bDpsBeforeDying = getChampionDpsBeforeDying(b, averageDps);
+    //     return bDpsBeforeDying - aDpsBeforeDying;
+    // });
+    // for(let champion of champions) {
+    //     for(let originName of champion.origins) {
+    //         let foundOrigin = origins.find(origin => origin.name === originName);
+    //
+    //         if(foundOrigin) {
+    //             foundOrigin.count++;
+    //             foundOrigin.valueSum += getChampionDpsBeforeDying(champion, averageDps) / averageDpsBeforeDying;
+    //             foundOrigin.averageValue = foundOrigin.valueSum / foundOrigin.count;
+    //         } else {
+    //             let origin = {};
+    //             origin.name = originName;
+    //             origin.count = 1;
+    //             origin.valueSum = getChampionDpsBeforeDying(champion, averageDps) / averageDpsBeforeDying;
+    //             origin.averageValue = getChampionDpsBeforeDying(champion, averageDps) / averageDpsBeforeDying;
+    //             origins.push(origin);
+    //         }
+    //     }
+    //
+    //     for(let className of champion.classes) {
+    //         let foundClass = classes.find(championClass => championClass.name === className);
+    //         if(foundClass) {
+    //             foundClass.count++;
+    //             foundClass.valueSum += getChampionDpsBeforeDying(champion, averageDps) / averageDpsBeforeDying;
+    //             foundClass.averageValue = foundClass.valueSum / foundClass.count;
+    //         } else {
+    //             let championClass = {};
+    //             championClass.name = className;
+    //             championClass.count = 1;
+    //             championClass.valueSum = getChampionDpsBeforeDying(champion, averageDps) / averageDpsBeforeDying;
+    //             championClass.averageValue = getChampionDpsBeforeDying(champion, averageDps) / averageDpsBeforeDying;
+    //             classes.push(championClass);
+    //         }
+    //     }
+    //
+    //     console.log(`${champion.cost} ` +
+    //         `${champion.name} | ` +
+    //         `${lodash.round(getChampionDpsBeforeDying(champion, averageDps) / averageDpsBeforeDying, 2)} | ` +
+    //         `${lodash.round(getChampionDpsBeforeDying(champion, averageDps), 2)} | ` +
+    //         `${lodash.round(champion.thirdLevel.effectiveHealth, 2)} | ` +
+    //         `${lodash.round(champion.thirdLevel.dps, 2)} | ` +
+    //         `${lodash.round(champion.attackSpeed, 2)} | ` +
+    //         `${champion.origins} | ` +
+    //         `${champion.classes}`);
+    // }
 
     let synergies = origins.concat(classes);
 
@@ -221,8 +215,29 @@ function getChampionDpsBeforeDying(champion, averageDps) {
     return champion.thirdLevel.effectiveHealth / averageDps * champion.thirdLevel.dps;
 }
 
-function printHighestStats(champions, averageStat, championStatFunction) {
-    console.log('\n\n');
+function getHpAndDpsModifier(champion, averageDps, averageEffectiveHealth) {
+        let effectiveHealthPercent = champion.thirdLevel.effectiveHealth / averageEffectiveHealth;
+        let dpsPercent = champion.thirdLevel.dps / averageDps;
+        return dpsPercent + effectiveHealthPercent;
+}
+
+function printHighestDpsPlusHealth(champions, averageDps, averageEffectiveHealth) {
+    console.log('\n\nSorting by: dps+hp');
+
+    champions.sort((a, b) => {
+        let aHealthAndDpsModifier = getHpAndDpsModifier(a, averageDps, averageEffectiveHealth);
+        let bHealthAndDpsModifier = getHpAndDpsModifier(b, averageDps, averageEffectiveHealth);
+        return bHealthAndDpsModifier - aHealthAndDpsModifier;
+    });
+    for(let champion of champions) {
+        console.log(`${champion.cost} ` +
+            `${champion.name} | ` +
+            `${lodash.round(getHpAndDpsModifier(champion, averageDps, averageEffectiveHealth), 2)} | `);
+    }
+}
+
+function printHighestStats(statName, champions, averageStat, championStatFunction) {
+    console.log('\n\nSorting by: ' + statName);
 
     champions.sort((a, b) => championStatFunction(b) - championStatFunction(a));
     for(let champion of champions) {
