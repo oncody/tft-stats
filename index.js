@@ -50,10 +50,6 @@ const favoriteChampions =
     // config.clear();
 
     for(let championUrl of championUrls) {
-        if(championUrl.toLowerCase().includes('twisted_fate')) {
-            continue;
-        }
-
         let championUrlName = regexUtils.getFirstCapturingGroup(championUrl, championUrlRegexName);
         if(!config.has(championUrlName)) {
             let championScraper = await new ChampionScraper(urlBase + championUrl);
@@ -116,19 +112,17 @@ const favoriteChampions =
         // console.log(`${synergy.name}: ${synergy.count}`);
     }
 
-    analyzeChampionsPerCost(champions, 1);
+    // analyzeChampionsPerCost(champions, 1);
     // analyzeChampionsPerCost(champions, 2);
     // analyzeChampionsPerCost(champions, 3);
     // analyzeChampionsPerCost(champions, 4);
-    // analyzeChampionsPerCost(champions, 5);
-
-
+    analyzeChampionsPerCost(champions, 5);
 })();
 
 function analyzeChampionsPerCost(allChampions, cost) {
     let champions = allChampions.filter(function(champion) {
-        // return champion.cost < cost + 1;
-        return champion.cost === cost;
+        return champion.cost < cost + 1;
+        // return champion.cost === cost;
     });
 
     let origins = [];
@@ -231,8 +225,8 @@ function printHighestDpsPlusHealth(champions, averageDps, averageEffectiveHealth
     });
     for(let champion of champions) {
         console.log(`${champion.cost} ` +
-            `${champion.name} | ` +
-            `${lodash.round(getHpAndDpsModifier(champion, averageDps, averageEffectiveHealth), 2)} | `);
+            `${champion.name} ` +
+            `${lodash.round(((getHpAndDpsModifier(champion, averageDps, averageEffectiveHealth) - 2.0) * 100), 0)}%`);
     }
 }
 
@@ -242,9 +236,8 @@ function printHighestStats(statName, champions, averageStat, championStatFunctio
     champions.sort((a, b) => championStatFunction(b) - championStatFunction(a));
     for(let champion of champions) {
         console.log(`${champion.cost} ` +
-            `${champion.name} | ` +
-            `${lodash.round(championStatFunction(champion) / averageStat, 2)} | ` +
-            `${lodash.round(championStatFunction(champion), 2)} `);
+            `${champion.name} ` +
+            `${lodash.round((((championStatFunction(champion) / averageStat) - 1.0) * 100), 0)}%`);
     }
 }
 
